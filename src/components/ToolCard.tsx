@@ -47,6 +47,10 @@ const ToolCard = ({ tool, index, className }: ToolCardProps) => {
           tool.pricing === 'Free' ? 'outline' : 
           tool.pricing === 'Freemium' ? 'secondary' : 
           'default'
+        } className={
+          tool.pricing === 'Free' ? 'border-primary text-primary' :
+          tool.pricing === 'Freemium' ? 'bg-primary/10 text-primary' :
+          'bg-primary text-white'
         }>
           {tool.pricing}
         </Badge>
@@ -86,7 +90,7 @@ const ToolCard = ({ tool, index, className }: ToolCardProps) => {
         href={tool.url} 
         target="_blank" 
         rel="noopener noreferrer"
-        className="mt-6 inline-flex items-center justify-center w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 px-4 py-2 rounded-lg transition-all duration-200 group-hover:bg-primary group-hover:text-primary-foreground"
+        className="mt-6 inline-flex items-center justify-center w-full bg-secondary hover:bg-secondary/80 px-4 py-2 rounded-lg transition-all duration-200 group-hover:bg-primary group-hover:text-white"
       >
         Visit Website
         <ArrowUpRight size={16} className="ml-2" />

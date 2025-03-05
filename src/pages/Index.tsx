@@ -4,49 +4,118 @@ import Hero from '@/components/Hero';
 import SearchInput from '@/components/SearchInput';
 import ToolList from '@/components/ToolList';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import AuthModal from '@/components/auth/AuthModal';
 import { useTools } from '@/hooks/useTools';
+import { useAuth } from '@/contexts/AuthContext';
 import { dummyTools } from '@/lib/dummyData';
+import { Button } from '@/components/ui/button';
+import { UserCircle, Menu, X } from 'lucide-react';
 
 const Index = () => {
   const { tools, isLoading, error, lastQuery, searchTools } = useTools();
   const [hasSearched, setHasSearched] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   const handleSearch = (query: string) => {
     searchTools(query);
     setHasSearched(true);
   };
 
+  const scrollToSearch = () => {
+    const searchElement = document.getElementById('search-section');
+    if (searchElement) {
+      searchElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="w-full py-6 px-4 border-b border-border/40 bg-background/90 backdrop-blur-sm fixed top-0 z-10">
+      <header className="w-full py-4 px-4 border-b border-border/40 bg-background/90 backdrop-blur-sm fixed top-0 z-10">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold">A</div>
+            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white font-bold">A</div>
             <span className="text-xl font-medium">AI Tools Finder</span>
           </div>
           
-          <nav className="hidden md:flex space-x-1">
-            <a href="#" className="px-4 py-2 rounded-md text-sm hover:bg-secondary transition">Features</a>
-            <a href="#" className="px-4 py-2 rounded-md text-sm hover:bg-secondary transition">Categories</a>
-            <a href="#" className="px-4 py-2 rounded-md text-sm hover:bg-secondary transition">About</a>
+          <nav className={`${mobileMenuOpen ? 'fixed inset-0 flex flex-col items-center justify-center bg-background z-50' : 'hidden'} md:relative md:flex md:space-x-1 md:bg-transparent`}>
+            {mobileMenuOpen && (
+              <button 
+                onClick={() => setMobileMenuOpen(false)}
+                className="absolute top-4 right-4 p-2 text-foreground md:hidden"
+              >
+                <X size={24} />
+              </button>
+            )}
+            
+            <a href="#" className="px-4 py-3 rounded-md text-base md:text-sm hover:bg-secondary transition mb-2 md:mb-0">Features</a>
+            <a href="#" className="px-4 py-3 rounded-md text-base md:text-sm hover:bg-secondary transition mb-2 md:mb-0">Categories</a>
+            <a href="#" className="px-4 py-3 rounded-md text-base md:text-sm hover:bg-secondary transition mb-6 md:mb-0">About</a>
+            
+            {mobileMenuOpen && (
+              <div className="mt-6 md:hidden">
+                {user ? (
+                  <Button onClick={logout} className="w-full btn-green">
+                    Log Out
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={() => {
+                      setAuthModalOpen(true);
+                      setMobileMenuOpen(false);
+                    }} 
+                    className="w-full btn-green"
+                  >
+                    Sign In
+                  </Button>
+                )}
+              </div>
+            )}
           </nav>
           
-          <div>
-            <button className="bg-primary/10 text-primary hover:bg-primary/20 px-4 py-2 rounded-md text-sm transition-colors">
-              Sign In
+          <div className="flex items-center">
+            {user ? (
+              <div className="flex items-center">
+                <span className="mr-2 hidden md:block">{user.name}</span>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={logout}
+                  className="bg-primary/10 text-primary hover:bg-primary/20 border-0"
+                >
+                  <UserCircle className="mr-1" size={18} /> Logout
+                </Button>
+              </div>
+            ) : (
+              <Button 
+                onClick={() => setAuthModalOpen(true)}
+                className="bg-primary/10 text-primary hover:bg-primary/20 border-0 hidden md:flex"
+              >
+                <UserCircle className="mr-1" size={18} /> Sign In
+              </Button>
+            )}
+            
+            <button 
+              className="ml-2 p-2 rounded-md md:hidden"
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <Menu size={24} />
             </button>
           </div>
         </div>
       </header>
 
       <main className="flex-1 container mx-auto px-4 pt-28 pb-16">
-        <Hero />
+        <Hero onGetStarted={scrollToSearch} />
         
-        <SearchInput 
-          onSearch={handleSearch}
-          isLoading={isLoading}
-          className="mb-12"
-        />
+        <div id="search-section" className="pt-12 scroll-mt-24">
+          <SearchInput 
+            onSearch={handleSearch}
+            isLoading={isLoading}
+            className="mb-12"
+          />
+        </div>
         
         {error && (
           <div className="bg-destructive/10 text-destructive p-4 rounded-lg mt-8 mb-12 max-w-2xl mx-auto">
@@ -129,6 +198,11 @@ const Index = () => {
           </div>
         </div>
       </footer>
+      
+      <AuthModal 
+        isOpen={authModalOpen} 
+        onClose={() => setAuthModalOpen(false)} 
+      />
     </div>
   );
 };
