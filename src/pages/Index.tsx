@@ -10,6 +10,7 @@ import { useTools } from '@/hooks/useTools';
 import { useAuth } from '@/contexts/AuthContext';
 import { dummyTools } from '@/lib/dummyData';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { UserCircle, Menu, X, ChevronDown, Star, ZapIcon, Sparkles, ShieldCheck, Globe, ChevronsRight } from 'lucide-react';
 
 const Index = () => {
