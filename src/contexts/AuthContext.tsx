@@ -5,13 +5,24 @@ type User = {
   id: string;
   name: string;
   email: string;
+  profession?: string;
+  interests?: string;
+  bio?: string;
+  isProfileComplete?: boolean;
 } | null;
+
+type ProfileData = {
+  profession: string;
+  interests: string;
+  bio?: string;
+};
 
 interface AuthContextType {
   user: User;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  updateProfile: (data: ProfileData) => void;
   isLoading: boolean;
 }
 
@@ -42,6 +53,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         id: 'user-1',
         name: email.split('@')[0], // Just use part of email as name for mock
         email,
+        isProfileComplete: false
       };
       
       setUser(newUser);
@@ -63,6 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         id: 'user-' + Date.now(),
         name,
         email,
+        isProfileComplete: false
       };
       
       setUser(newUser);
@@ -72,13 +85,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const updateProfile = (data: ProfileData) => {
+    if (!user) return;
+    
+    const updatedUser = {
+      ...user,
+      ...data,
+      isProfileComplete: true
+    };
+    
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, updateProfile, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
